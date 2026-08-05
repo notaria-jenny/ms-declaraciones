@@ -23,7 +23,15 @@ public class Declaraciones {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDeclaracion;
 
-    //compareciente, copiado desde ms-clientes al momento de emitir
+    // Folio visible del documento. No se usa el id de la base:
+    // un autoincremental es un detalle técnico, no un número de documento legal.
+    @Column(nullable = false, unique = true, length = 30)
+    private String numeroDocumento;
+
+    // Declarante: copiado desde ms-clientes al momento de emitir ──
+    // Se guarda copia y no se resuelve en vivo: si el cliente cambia de
+    // domicilio, las declaraciones ya emitidas deben conservar el que tenía
+    // el día que compareció.
     @Column(nullable = false, length = 12)
     private String rutCliente;
 
@@ -37,14 +45,22 @@ public class Declaraciones {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String texto;
 
-    //funcionario que tramitó (copiado desde ms-administradores)
+    // Trazabilidad interna: NO se imprimen en el documento
+    // La firma es manuscrita sobre el papel; el .docx solo lleva la línea
+    // en blanco y el pie del notario titular.
     @Column(nullable = false, length = 12)
     private String rutAdministrador;
 
     @Column(nullable = false, length = 200)
     private String nombreAdministrador;
 
-    //Notario que autoriza (copiado desde ms-administradores)
+    @Column(nullable = false, length = 12)
+    private String rutFirmante;
+
+    @Column(nullable = false, length = 200)
+    private String nombreFirmante;
+
+    // Notario titular al momento de emitir: este SÍ va en el pie
     @Column(nullable = false, length = 12)
     private String rutNotario;
 
@@ -52,13 +68,16 @@ public class Declaraciones {
     private String nombreNotario;
 
     //Estado y fechas
+    // No hay DELETE: un documento notarial se anula, no se borra.
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Estado estado;
 
+    //Día en que el declarante comparece a firmar: es la fecha impresa
     @Column(nullable = false)
     private LocalDateTime fechaComparecencia;
 
+    // Instante en que se creó el registro: auditoría, no aparece en el documento
     @Column(nullable = false)
     private LocalDateTime fechaEmision;
 }
